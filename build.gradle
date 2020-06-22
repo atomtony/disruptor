@@ -49,6 +49,8 @@ eclipse.classpath.plusConfigurations += [ sourceSets.perf.compileClasspath ]
 
 repositories {
     mavenCentral()
+    jcenter()
+    google()
 }
 
 dependencies {
