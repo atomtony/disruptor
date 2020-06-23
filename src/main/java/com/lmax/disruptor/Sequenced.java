@@ -7,6 +7,7 @@ public interface Sequenced
      *
      * @return the size of the RingBuffer.
      */
+    // 获取环形缓存大小
     int getBufferSize();
 
     /**
@@ -16,6 +17,7 @@ public interface Sequenced
      * @param requiredCapacity in the buffer
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
+    // 判断是否含有指定的可用容量
     boolean hasAvailableCapacity(int requiredCapacity);
 
     /**
@@ -23,6 +25,7 @@ public interface Sequenced
      *
      * @return The number of slots remaining.
      */
+    // 剩余容量
     long remainingCapacity();
 
     /**

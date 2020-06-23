@@ -27,6 +27,7 @@ import com.lmax.disruptor.util.Util;
  */
 public abstract class AbstractSequencer implements Sequencer
 {
+    // 属性原子更新器，属性必须是volatile修饰，当前属性类型是Sequence[]数组类型。
     private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER =
         AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class, "gatingSequences");
 
@@ -47,6 +48,7 @@ public abstract class AbstractSequencer implements Sequencer
         {
             throw new IllegalArgumentException("bufferSize must not be less than 1");
         }
+        // 判断bufferSize是否为2的幂次方
         if (Integer.bitCount(bufferSize) != 1)
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");

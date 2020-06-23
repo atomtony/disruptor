@@ -23,6 +23,7 @@ public interface Sequencer extends Cursored, Sequenced
     /**
      * Set to -1 as sequence starting point
      */
+    // 序列开始位置
     long INITIAL_CURSOR_VALUE = -1L;
 
     /**
@@ -31,6 +32,7 @@ public interface Sequencer extends Cursored, Sequenced
      *
      * @param sequence The sequence to initialise too.
      */
+
     void claim(long sequence);
 
     /**

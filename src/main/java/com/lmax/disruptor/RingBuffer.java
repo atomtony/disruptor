@@ -23,6 +23,7 @@ import com.lmax.disruptor.util.Util;
 
 abstract class RingBufferPad
 {
+    // 左侧填充
     protected long p1, p2, p3, p4, p5, p6, p7;
 }
 
@@ -79,6 +80,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
         fill(eventFactory);
     }
 
+    // 1. 数组元素在初始化时，一次全部创建，提升缓存命中率；对象循环利用，避免频繁GC
     private void fill(EventFactory<E> eventFactory)
     {
         for (int i = 0; i < bufferSize; i++)
@@ -103,6 +105,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
 public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored, EventSequencer<E>, EventSink<E>
 {
     public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;
+    // 右侧填充
     protected long p1, p2, p3, p4, p5, p6, p7;
 
     /**

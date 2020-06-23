@@ -21,6 +21,7 @@ import com.lmax.disruptor.util.Util;
 
 abstract class SingleProducerSequencerPad extends AbstractSequencer
 {
+    // 左侧填充56字节
     protected long p1, p2, p3, p4, p5, p6, p7;
 
     SingleProducerSequencerPad(int bufferSize, WaitStrategy waitStrategy)
@@ -39,6 +40,7 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
     /**
      * Set to -1 as sequence starting point
      */
+    // 做了左侧右侧填充，
     long nextValue = Sequence.INITIAL_VALUE;
     long cachedValue = Sequence.INITIAL_VALUE;
 }
@@ -53,6 +55,7 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
 
 public final class SingleProducerSequencer extends SingleProducerSequencerFields
 {
+    // 右侧填充56字节
     protected long p1, p2, p3, p4, p5, p6, p7;
 
     /**
