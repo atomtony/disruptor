@@ -1,7 +1,9 @@
 package com.lmax.disruptor.lesson40;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import java.nio.ByteBuffer;
@@ -15,7 +17,8 @@ public class LongEventMain {
         int bufferSize = 1024;
 
         // Construct the Disruptor
-        Disruptor<LongEvent> disruptor = new Disruptor<>(factory, bufferSize, DaemonThreadFactory.INSTANCE);
+        Disruptor<LongEvent> disruptor = new Disruptor<>(factory, bufferSize,
+                DaemonThreadFactory.INSTANCE,ProducerType.SINGLE, new BlockingWaitStrategy());
 
         // Connect the handler
         disruptor.handleEventsWith(new LongEventHandler());
