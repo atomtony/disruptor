@@ -30,8 +30,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class BatchEventProcessor<T>
     implements EventProcessor
 {
+    // 空闲
     private static final int IDLE = 0;
+    // 停止
     private static final int HALTED = IDLE + 1;
+    // 正在运行
     private static final int RUNNING = HALTED + 1;
 
     private final AtomicInteger running = new AtomicInteger(IDLE);
@@ -39,6 +42,7 @@ public final class BatchEventProcessor<T>
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
     private final EventHandler<? super T> eventHandler;
+    // 每个事件处理器拥有自己的sequence
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
     private final BatchStartAware batchStartAware;

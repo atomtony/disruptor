@@ -540,6 +540,7 @@ public class Disruptor<T>
     {
         checkNotStarted();
 
+        // 每个事件BatchEventProcessor拥有Sequence属性，
         final Sequence[] processorSequences = new Sequence[eventHandlers.length];
         final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 

@@ -23,6 +23,7 @@ package com.lmax.disruptor;
  * <p>For efficiency this exception will not have a stack trace.</p>
  */
 @SuppressWarnings("serial")
+// 容量不足异常，为了提高效率，此异常没有堆栈异常
 public final class InsufficientCapacityException extends Exception
 {
     public static final InsufficientCapacityException INSTANCE = new InsufficientCapacityException();

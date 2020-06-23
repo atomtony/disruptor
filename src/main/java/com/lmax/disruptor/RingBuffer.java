@@ -36,6 +36,8 @@ abstract class RingBufferFields<E> extends RingBufferPad
 
     static
     {
+        // 获取每个数组元素在内存中的大小。此处为Object对象数据，所以数组中每个元素是对象引用，即对象指针。
+        // 在64位操作系统中，在JVM不启用对象指针压缩的时候（vm参数添加-XX:-UseCompressedOops），scale为8。如果启动对象指针压缩，scale为4。
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
         if (4 == scale)
         {
@@ -49,8 +51,11 @@ abstract class RingBufferFields<E> extends RingBufferPad
         {
             throw new IllegalStateException("Unknown pointer size");
         }
+        // 填充128字节缓冲行
         BUFFER_PAD = 128 / scale;
         // Including the buffer pad in the array base offset
+        // 获取数组中第一个元素的偏移量(get offset of a first element in the array)
+        // public native int arrayBaseOffset(java.lang.Class aClass);
         REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + 128;
     }
 
