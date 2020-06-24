@@ -23,7 +23,7 @@ public interface Sequencer extends Cursored, Sequenced
     /**
      * Set to -1 as sequence starting point
      */
-    // 序列开始位置
+    // 游标初始位置
     long INITIAL_CURSOR_VALUE = -1L;
 
     /**
@@ -32,7 +32,7 @@ public interface Sequencer extends Cursored, Sequenced
      *
      * @param sequence The sequence to initialise too.
      */
-
+    // 设置RingBuffer中的sequence
     void claim(long sequence);
 
     /**
@@ -41,6 +41,7 @@ public interface Sequencer extends Cursored, Sequenced
      * @param sequence of the buffer to check
      * @return true if the sequence is available for use, false if not
      */
+    // 非阻塞方法，判断sequence是否可用
     boolean isAvailable(long sequence);
 
     /**
@@ -49,6 +50,7 @@ public interface Sequencer extends Cursored, Sequenced
      *
      * @param gatingSequences The sequences to add.
      */
+    //
     void addGatingSequences(Sequence... gatingSequences);
 
     /**

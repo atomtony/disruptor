@@ -132,11 +132,17 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
+            // 绕一圈后，wrapPoint > cachedGatingSequence，有未消费的消息
+            // 关于cachedGatingSequence > nextValue可以参考https://github.com/LMAX-Exchange/disruptor/issues/76
+
+            // 生产者为单线程
             cursor.setVolatile(nextValue);  // StoreLoad fence
 
             long minSequence;
+            // 循环等待，
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
+                // 挂起线程1纳秒
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
 

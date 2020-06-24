@@ -7,7 +7,7 @@ public interface Sequenced
      *
      * @return the size of the RingBuffer.
      */
-    // 获取环形缓存大小
+    // 获取队列大小
     int getBufferSize();
 
     /**
@@ -25,7 +25,7 @@ public interface Sequenced
      *
      * @return The number of slots remaining.
      */
-    // 剩余容量
+    // 获取队列中药效容量
     long remainingCapacity();
 
     /**
@@ -33,6 +33,7 @@ public interface Sequenced
      *
      * @return the claimed sequence value
      */
+    // 获取下一个序列值，如果失败则自旋获取
     long next();
 
     /**
@@ -51,6 +52,7 @@ public interface Sequenced
      * @param n the number of sequences to claim
      * @return the highest claimed sequence value
      */
+    // 获取n个sequence，如果失败则循环自旋
     long next(int n);
 
     /**
@@ -61,6 +63,7 @@ public interface Sequenced
      * @return the claimed sequence value
      * @throws InsufficientCapacityException thrown if there is no space available in the ring buffer.
      */
+    // 尝试获取下一个sequence
     long tryNext() throws InsufficientCapacityException;
 
     /**
@@ -73,6 +76,7 @@ public interface Sequenced
      * @return the claimed sequence value
      * @throws InsufficientCapacityException thrown if there is no space available in the ring buffer.
      */
+    // 尝试获取n个sequence
     long tryNext(int n) throws InsufficientCapacityException;
 
     /**
@@ -80,6 +84,7 @@ public interface Sequenced
      *
      * @param sequence the sequence to be published.
      */
+    // 发布sequence
     void publish(long sequence);
 
     /**
@@ -88,5 +93,6 @@ public interface Sequenced
      * @param lo first sequence number to publish
      * @param hi last sequence number to publish
      */
+    // 发布sequence从low到high
     void publish(long lo, long hi);
 }
