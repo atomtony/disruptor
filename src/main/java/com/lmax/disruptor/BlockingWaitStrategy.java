@@ -43,6 +43,8 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
         }
 
+        // 在SingleProductorSequencer中，dependentSequence和cursorSequence是同一个对象
+        // 此处循环等待获取，直至获取到才能跳出循环
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();

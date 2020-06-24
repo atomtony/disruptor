@@ -38,6 +38,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
     {
         // 获取每个数组元素在内存中的大小。此处为Object对象数据，所以数组中每个元素是对象引用，即对象指针。
         // 在64位操作系统中，在JVM不启用对象指针压缩的时候（vm参数添加-XX:-UseCompressedOops），scale为8。如果启动对象指针压缩，scale为4。
+        // 默认是带有指针压缩参数
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
         if (4 == scale)
         {
@@ -55,7 +56,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
         BUFFER_PAD = 128 / scale;
         // Including the buffer pad in the array base offset
         // 获取数组中第一个元素的偏移量(get offset of a first element in the array)
-        // public native int arrayBaseOffset(java.lang.Class aClass);
+        // 加上128个字节的填充
         REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + 128;
     }
 
@@ -75,21 +76,25 @@ abstract class RingBufferFields<E> extends RingBufferPad
         {
             throw new IllegalArgumentException("bufferSize must not be less than 1");
         }
+        // 2的幂次方判断
         if (Integer.bitCount(bufferSize) != 1)
         {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
 
+        // 索引掩码
         this.indexMask = bufferSize - 1;
+        // 创建数组大小，包含前后各一个BUFFER_PAD,所以在分配空间时多分配BUFFER_PAD×2个空间
         this.entries = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
+        // 数组元素在初始化时，一次全部创建，提升缓存命中率；对象循环利用，避免频繁GC
         fill(eventFactory);
     }
 
-    // 1. 数组元素在初始化时，一次全部创建，提升缓存命中率；对象循环利用，避免频繁GC
     private void fill(EventFactory<E> eventFactory)
     {
         for (int i = 0; i < bufferSize; i++)
         {
+            // 空开左侧填充行
             entries[BUFFER_PAD + i] = eventFactory.newInstance();
         }
     }
@@ -97,6 +102,10 @@ abstract class RingBufferFields<E> extends RingBufferPad
     @SuppressWarnings("unchecked")
     protected final E elementAt(long sequence)
     {
+        // 获取最终元素的内存地址：REF_ARRAY_BASE + ((sequence & indexMask) << REF_ELEMENT_SHIFT
+        // REF_ARRAY_BASE:表示第一个元素的开始元素
+        // (sequence & indexMask) 第几个出元素的下表
+        // 左移REF_ELEMENT_SHIFT，表示2的REF_ELEMENT_SHIFT幂次方,也就是每个元素指针大小，用左移是为了加速计算
         return (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence & indexMask) << REF_ELEMENT_SHIFT));
     }
 }

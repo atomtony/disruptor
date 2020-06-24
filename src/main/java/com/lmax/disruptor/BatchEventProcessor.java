@@ -36,11 +36,12 @@ public final class BatchEventProcessor<T>
     private static final int HALTED = IDLE + 1;
     // 正在运行
     private static final int RUNNING = HALTED + 1;
-
+    // 事件处理器状态，初始状态为空闲状态
     private final AtomicInteger running = new AtomicInteger(IDLE);
     private ExceptionHandler<? super T> exceptionHandler = new FatalExceptionHandler();
     private final DataProvider<T> dataProvider;
     private final SequenceBarrier sequenceBarrier;
+    // 时间处理句柄
     private final EventHandler<? super T> eventHandler;
     // 每个事件处理器拥有自己的sequence
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
@@ -117,10 +118,12 @@ public final class BatchEventProcessor<T>
     @Override
     public void run()
     {
+        // CAS判断事件状态是否为启动状态
         if (running.compareAndSet(IDLE, RUNNING))
         {
             sequenceBarrier.clearAlert();
 
+            // 通知开始
             notifyStart();
             try
             {
@@ -131,6 +134,7 @@ public final class BatchEventProcessor<T>
             }
             finally
             {
+                // 通知关闭
                 notifyShutdown();
                 running.set(IDLE);
             }

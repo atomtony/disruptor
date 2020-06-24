@@ -40,7 +40,7 @@ abstract class SingleProducerSequencerFields extends SingleProducerSequencerPad
     /**
      * Set to -1 as sequence starting point
      */
-    // 做了左侧右侧填充，
+    //父类做了左侧填充，子类做了右侧填充
     long nextValue = Sequence.INITIAL_VALUE;
     long cachedValue = Sequence.INITIAL_VALUE;
 }
