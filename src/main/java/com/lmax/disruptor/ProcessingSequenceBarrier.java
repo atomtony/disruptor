@@ -25,9 +25,9 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final WaitStrategy waitStrategy;
     private final Sequence dependentSequence;
     private volatile boolean alerted = false;
-    // 生产者写下标序列
+    // 生产者序列
     private final Sequence cursorSequence;
-    // 生产者序列器
+    // 生产者序列管理器
     private final Sequencer sequencer;
 
     ProcessingSequenceBarrier(
@@ -41,10 +41,12 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
         this.cursorSequence = cursorSequence;
         if (0 == dependentSequences.length)
         {
+            // 无依赖链单元
             dependentSequence = cursorSequence;
         }
         else
         {
+            // 链式创建消费者时，上个链单元创建的消费者读下标序列数组
             dependentSequence = new FixedSequenceGroup(dependentSequences);
         }
     }

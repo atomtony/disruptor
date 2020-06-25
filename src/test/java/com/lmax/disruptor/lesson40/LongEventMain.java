@@ -23,7 +23,8 @@ public class LongEventMain {
                 DaemonThreadFactory.INSTANCE, ProducerType.MULTI, new BlockingWaitStrategy());
 
         // Connect the handler
-        disruptor.handleEventsWith(new LongEventHandler());
+        disruptor.handleEventsWith(new LongEventHandler())
+                .handleEventsWith(new LongEventHandler());
 
 //        disruptor.handleEventsWithWorkerPool(new LongWorkHandler()).handleEventsWithWorkerPool(new LongWorkHandler());
 

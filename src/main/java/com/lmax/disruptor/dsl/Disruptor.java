@@ -393,6 +393,7 @@ public class Disruptor<T>
     public RingBuffer<T> start()
     {
         checkOnlyStartedOnce();
+        // 启动所有消费者
         for (final ConsumerInfo consumerInfo : consumerRepository)
         {
             consumerInfo.start(executor);
@@ -446,6 +447,8 @@ public class Disruptor<T>
     public void shutdown(final long timeout, final TimeUnit timeUnit) throws TimeoutException
     {
         final long timeOutAt = System.currentTimeMillis() + timeUnit.toMillis(timeout);
+
+        // 等待消费完数据
         while (hasBacklog())
         {
             if (timeout >= 0 && System.currentTimeMillis() > timeOutAt)
@@ -454,6 +457,7 @@ public class Disruptor<T>
             }
             // Busy spin
         }
+        // 停止所有消费者
         halt();
     }
 
@@ -529,15 +533,17 @@ public class Disruptor<T>
      */
     private boolean hasBacklog()
     {
+        // 生产者读下标
         final long cursor = ringBuffer.getCursor();
-
+        // 判断消所有费者是否消费完数据
         return consumerRepository.hasBacklog(cursor, false);
     }
 
     EventHandlerGroup<T> createEventProcessors(
-        final Sequence[] barrierSequences,
+        final Sequence[] barrierSequences,// 上个链节点消费者序列数组
         final EventHandler<? super T>[] eventHandlers)
     {
+        // 检查未启动
         checkNotStarted();
 
         // 存放所有消费者读下标序列
@@ -548,20 +554,24 @@ public class Disruptor<T>
         {
             final EventHandler<? super T> eventHandler = eventHandlers[i];
 
+            // 创建消费者
             final BatchEventProcessor<T> batchEventProcessor =
                 new BatchEventProcessor<>(ringBuffer, barrier, eventHandler);
 
+            // 设置消费者异常处理具柄
             if (exceptionHandler != null)
             {
                 batchEventProcessor.setExceptionHandler(exceptionHandler);
             }
-
+            // 添加消费到容器中，集中管理
             consumerRepository.add(batchEventProcessor, eventHandler, barrier);
-            // 将每个消费者读下标序列放入数组总
+            // 将每个消费者读下标序列放入数组中
             processorSequences[i] = batchEventProcessor.getSequence();
         }
 
-        //
+        // 1.更新最新的消费者序列数组到生产者gatingSequences数组中，
+        // 2.从生产gatingSequences数组中移除上个链单元创建的消费者序列
+        // 3.标记上个链单元创建的消费者不为末尾节点
         updateGatingSequencesForNextInChain(barrierSequences, processorSequences);
 
         return new EventHandlerGroup<>(this, consumerRepository, processorSequences);
@@ -571,12 +581,14 @@ public class Disruptor<T>
     {
         if (processorSequences.length > 0)
         {
-            // 将消费者读下标序列更新到生产者gatingSequences数组中
+            // 将消费者序列更新到生产者gatingSequences数组中
             ringBuffer.addGatingSequences(processorSequences);
+            // 移除之前的消费者读序列
             for (final Sequence barrierSequence : barrierSequences)
             {
                 ringBuffer.removeGatingSequence(barrierSequence);
             }
+            // 标记上个链单元创建的消费者不为末节点
             consumerRepository.unMarkEventProcessorsAsEndOfChain(barrierSequences);
         }
     }
