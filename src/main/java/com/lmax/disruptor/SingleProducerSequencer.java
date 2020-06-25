@@ -124,35 +124,37 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
         }
 
-        // 循环队列写下标
+        // 队列写下标
         long nextValue = this.nextValue;
-
-        // 循环队列下一个写下表
+        // 队列下一个写下标
         long nextSequence = nextValue + n;
-        //
+        // 回退一圈的写下标位置
         long wrapPoint = nextSequence - bufferSize;
-        // 循环队列读下表
+        // 队列读下表
         long cachedGatingSequence = this.cachedValue;
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)
         {
-            // 绕一圈后，wrapPoint > cachedGatingSequence，有未消费的消息
+            // wrapPoint > cachedGatingSequence 回退一圈写下标位置大于读下标，说明可用单元不够需要循环等得获取可用单元
             // 关于cachedGatingSequence > nextValue可以参考https://github.com/LMAX-Exchange/disruptor/issues/76
 
-            // 生产者为单线程
+            // 更新读下标，修改的volatile数据，会导致其他CPU缓存失效，重新从内寸中读取
             cursor.setVolatile(nextValue);  // StoreLoad fence
 
+            // 最小读下标
             long minSequence;
-            // 循环等待，
+            // 自旋更新读下表，直至最小读下标大于
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
                 // 挂起线程1纳秒
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
 
+            // 赋值读下标
             this.cachedValue = minSequence;
         }
 
+        // 赋值写下标
         this.nextValue = nextSequence;
 
         return nextSequence;

@@ -31,10 +31,12 @@ public final class BlockingWaitStrategy implements WaitStrategy
         throws AlertException, InterruptedException
     {
         long availableSequence;
+        // 首先无锁判断读下标大于写下标
         if (cursorSequence.get() < sequence)
         {
             synchronized (mutex)
             {
+                // 加锁循环判断读下标大于写下标，直至写下标大于读下标，说明有数据了
                 while (cursorSequence.get() < sequence)
                 {
                     barrier.checkAlert();
@@ -43,14 +45,14 @@ public final class BlockingWaitStrategy implements WaitStrategy
             }
         }
 
-        // 在SingleProductorSequencer中，dependentSequence和cursorSequence是同一个对象
-        // 此处循环等待获取，直至获取到才能跳出循环
+        // 循环获取读写下标，直到写下表大于读下表，说明有数据了
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();
             ThreadHints.onSpinWait();
         }
 
+        //返回最新的写下标
         return availableSequence;
     }
 

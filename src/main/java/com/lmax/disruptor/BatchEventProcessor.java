@@ -43,7 +43,7 @@ public final class BatchEventProcessor<T>
     private final SequenceBarrier sequenceBarrier;
     // 时间处理句柄
     private final EventHandler<? super T> eventHandler;
-    // 每个事件处理器拥有自己的sequence
+    // 每个消费者，维护一个读下标序列
     private final Sequence sequence = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
     private final TimeoutHandler timeoutHandler;
     private final BatchStartAware batchStartAware;
@@ -158,25 +158,31 @@ public final class BatchEventProcessor<T>
     private void processEvents()
     {
         T event = null;
+        // 渎下标从0开始
         long nextSequence = sequence.get() + 1L;
 
         while (true)
         {
             try
             {
+                // 获取写下标
                 final long availableSequence = sequenceBarrier.waitFor(nextSequence);
                 if (batchStartAware != null && availableSequence >= nextSequence)
                 {
+                    // 回调批量开始
                     batchStartAware.onBatchStart(availableSequence - nextSequence + 1);
                 }
 
                 while (nextSequence <= availableSequence)
                 {
+                    // 获取队列消息
                     event = dataProvider.get(nextSequence);
+                    // 回调处理事件
                     eventHandler.onEvent(event, nextSequence, nextSequence == availableSequence);
                     nextSequence++;
                 }
 
+                // 消费者维护写下标
                 sequence.set(availableSequence);
             }
             catch (final TimeoutException e)

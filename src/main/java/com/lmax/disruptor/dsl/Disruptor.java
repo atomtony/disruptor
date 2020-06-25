@@ -540,7 +540,7 @@ public class Disruptor<T>
     {
         checkNotStarted();
 
-        // 每个事件BatchEventProcessor拥有Sequence属性，
+        // 存放所有消费者读下标序列
         final Sequence[] processorSequences = new Sequence[eventHandlers.length];
         final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 
@@ -557,9 +557,11 @@ public class Disruptor<T>
             }
 
             consumerRepository.add(batchEventProcessor, eventHandler, barrier);
+            // 将每个消费者读下标序列放入数组总
             processorSequences[i] = batchEventProcessor.getSequence();
         }
 
+        //
         updateGatingSequencesForNextInChain(barrierSequences, processorSequences);
 
         return new EventHandlerGroup<>(this, consumerRepository, processorSequences);
@@ -569,6 +571,7 @@ public class Disruptor<T>
     {
         if (processorSequences.length > 0)
         {
+            // 将消费者读下标序列更新到生产者gatingSequences数组中
             ringBuffer.addGatingSequences(processorSequences);
             for (final Sequence barrierSequence : barrierSequences)
             {

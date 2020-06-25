@@ -25,9 +25,9 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     private final WaitStrategy waitStrategy;
     private final Sequence dependentSequence;
     private volatile boolean alerted = false;
-    //SingleProducerSequencer
+    // 生产者写下标序列
     private final Sequence cursorSequence;
-    // ProducerSequencer
+    // 生产者序列器
     private final Sequencer sequencer;
 
     ProcessingSequenceBarrier(

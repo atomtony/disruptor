@@ -6,4 +6,8 @@ public class LongEvent {
     public void set(long value) {
         this.value = value;
     }
+
+    public long getValue() {
+        return value;
+    }
 }
