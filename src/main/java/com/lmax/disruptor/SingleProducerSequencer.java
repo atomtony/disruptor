@@ -124,10 +124,14 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             throw new IllegalArgumentException("n must be > 0 and < bufferSize");
         }
 
+        // 循环队列写下标
         long nextValue = this.nextValue;
 
+        // 循环队列下一个写下表
         long nextSequence = nextValue + n;
+        //
         long wrapPoint = nextSequence - bufferSize;
+        // 循环队列读下表
         long cachedGatingSequence = this.cachedValue;
 
         if (wrapPoint > cachedGatingSequence || cachedGatingSequence > nextValue)

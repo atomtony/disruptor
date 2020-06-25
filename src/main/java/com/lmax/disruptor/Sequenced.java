@@ -17,7 +17,7 @@ public interface Sequenced
      * @param requiredCapacity in the buffer
      * @return true if the buffer has the capacity to allocate the next sequence otherwise false.
      */
-    // 判断是否含有指定的可用容量
+    // 判断队列是否有requiredCapacity个可用单元
     boolean hasAvailableCapacity(int requiredCapacity);
 
     /**
@@ -25,7 +25,7 @@ public interface Sequenced
      *
      * @return The number of slots remaining.
      */
-    // 获取队列中药效容量
+    // 获取队列当前可用容量
     long remainingCapacity();
 
     /**
@@ -33,7 +33,7 @@ public interface Sequenced
      *
      * @return the claimed sequence value
      */
-    // 获取下一个序列值，如果失败则自旋获取
+    // 获取下一个可用单元，如果队列满了，则自旋获取
     long next();
 
     /**
@@ -52,7 +52,7 @@ public interface Sequenced
      * @param n the number of sequences to claim
      * @return the highest claimed sequence value
      */
-    // 获取n个sequence，如果失败则循环自旋
+    // 获取下n个可用单元，如果队列满了，则自旋获取
     long next(int n);
 
     /**
@@ -63,7 +63,7 @@ public interface Sequenced
      * @return the claimed sequence value
      * @throws InsufficientCapacityException thrown if there is no space available in the ring buffer.
      */
-    // 尝试获取下一个sequence
+    // 尝试获取下一个可用单元，非阻塞方法
     long tryNext() throws InsufficientCapacityException;
 
     /**
@@ -76,7 +76,7 @@ public interface Sequenced
      * @return the claimed sequence value
      * @throws InsufficientCapacityException thrown if there is no space available in the ring buffer.
      */
-    // 尝试获取n个sequence
+    // 尝试获取n个可用单元，非阻塞方法
     long tryNext(int n) throws InsufficientCapacityException;
 
     /**
@@ -84,7 +84,7 @@ public interface Sequenced
      *
      * @param sequence the sequence to be published.
      */
-    // 发布sequence
+    // 发布单元数据
     void publish(long sequence);
 
     /**
@@ -93,6 +93,6 @@ public interface Sequenced
      * @param lo first sequence number to publish
      * @param hi last sequence number to publish
      */
-    // 发布sequence从low到high
+    // 发布区间单元数据
     void publish(long lo, long hi);
 }
