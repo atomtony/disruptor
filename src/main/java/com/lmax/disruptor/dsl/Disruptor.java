@@ -570,7 +570,7 @@ public class Disruptor<T>
         }
 
         // 1.更新最新的消费者序列数组到生产者gatingSequences数组中，
-        // 2.从生产gatingSequences数组中移除上个链单元创建的消费者序列
+        // 2.从生产者gatingSequences数组中移除上个链单元创建的消费者序列
         // 3.标记上个链单元创建的消费者不为末尾节点
         updateGatingSequencesForNextInChain(barrierSequences, processorSequences);
 

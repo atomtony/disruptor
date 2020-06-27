@@ -31,7 +31,9 @@ import java.util.Arrays;
 public class EventHandlerGroup<T>
 {
     private final Disruptor<T> disruptor;
+    // 消费者仓库
     private final ConsumerRepository<T> consumerRepository;
+    // 消费者序列数组
     private final Sequence[] sequences;
 
     EventHandlerGroup(

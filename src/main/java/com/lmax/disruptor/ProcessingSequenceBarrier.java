@@ -23,6 +23,9 @@ package com.lmax.disruptor;
 final class ProcessingSequenceBarrier implements SequenceBarrier
 {
     private final WaitStrategy waitStrategy;
+    // 依赖序列
+    // 1. 单链单元创建消费者，则dependentSequence存储的是生产者消费序列
+    // 2. 链式多次创次创建消费者，则dependentSequence存储的是上个链单元创建的消费者序列数组
     private final Sequence dependentSequence;
     private volatile boolean alerted = false;
     // 生产者序列
