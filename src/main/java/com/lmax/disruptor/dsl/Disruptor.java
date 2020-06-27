@@ -533,14 +533,14 @@ public class Disruptor<T>
      */
     private boolean hasBacklog()
     {
-        // 生产者读下标
+        // 生产者下标
         final long cursor = ringBuffer.getCursor();
         // 判断消所有费者是否消费完数据
         return consumerRepository.hasBacklog(cursor, false);
     }
 
     EventHandlerGroup<T> createEventProcessors(
-        final Sequence[] barrierSequences,// 上个链节点消费者序列数组
+        final Sequence[] barrierSequences,// 上个链节点消费者序列数组，如果是首次创建，则数组长度为0
         final EventHandler<? super T>[] eventHandlers)
     {
         // 检查未启动

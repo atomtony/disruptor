@@ -20,6 +20,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Access to a ThreadFactory instance. All threads are created with setDaemon(true).
  */
+// 枚举类创建单例模式，实现线程工厂接口，创建不去线程为守护线程，当全部的用户线程结束时，守护线程也会被jvm终止掉
 public enum DaemonThreadFactory implements ThreadFactory
 {
     INSTANCE;
